@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView mGyroscopeTV;
     private TextView mMageticTV;
     private TextView mGravityTV;
+    private TextView mOrientationTV;
 
     private TextView mStartTV;
     private TextView mPauseTV;
@@ -37,11 +38,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private List<SensorData> mGyroList = new ArrayList<>();
     private List<SensorData> mMageList = new ArrayList<>();
     private List<SensorData> mGravityList = new ArrayList<>();
+    private List<SensorData> mOrientationList = new ArrayList<>();
 
     private long mAccerTime = System.currentTimeMillis();
     private long mGyroTime = System.currentTimeMillis();
     private long mMageTime = System.currentTimeMillis();
     private long mGravityTime = System.currentTimeMillis();
+    private long mOrientationTime = System.currentTimeMillis();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mGyroscopeTV = findViewById(R.id.gyroscope);
         mMageticTV = findViewById(R.id.magnetic);
         mGravityTV = findViewById(R.id.gravity);
+        mOrientationTV = findViewById(R.id.orientation);
 
 
         mStartTV = findViewById(R.id.start_tv);
@@ -67,6 +71,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mAccerTime = System.currentTimeMillis();
             mGyroTime = System.currentTimeMillis();
             mMageTime = System.currentTimeMillis();
+            mGravityTime = System.currentTimeMillis();
+            mOrientationTime = System.currentTimeMillis();
         });
 
         mPauseTV.setOnClickListener(view -> {
@@ -90,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mGyroscopeTV.setBackgroundColor(Color.WHITE);
             mMageticTV.setBackgroundColor(Color.WHITE);
             mGravityTV.setBackgroundColor(Color.WHITE);
+            mOrientationTV.setBackgroundColor(Color.WHITE);
 
         });
 
@@ -105,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mAccerTV.setBackgroundColor(Color.WHITE);
             mMageticTV.setBackgroundColor(Color.WHITE);
             mGravityTV.setBackgroundColor(Color.WHITE);
+            mOrientationTV.setBackgroundColor(Color.WHITE);
 
         });
 
@@ -120,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mGyroscopeTV.setBackgroundColor(Color.WHITE);
             mAccerTV.setBackgroundColor(Color.WHITE);
             mGravityTV.setBackgroundColor(Color.WHITE);
+            mOrientationTV.setBackgroundColor(Color.WHITE);
 
         });
 
@@ -135,6 +144,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mGyroscopeTV.setBackgroundColor(Color.WHITE);
             mAccerTV.setBackgroundColor(Color.WHITE);
             mGravityTV.setBackgroundColor(Color.RED);
+            mOrientationTV.setBackgroundColor(Color.WHITE);
+
+        });
+
+        mOrientationTV.setOnClickListener(view -> {
+            mType = Sensor.TYPE_ORIENTATION;
+            mAdapter.replaceData(mOrientationList);
+
+            if (mState == 1) {
+                mAdapter.notifyDataSetChanged();
+            }
+
+            mMageticTV.setBackgroundColor(Color.WHITE);
+            mGyroscopeTV.setBackgroundColor(Color.WHITE);
+            mAccerTV.setBackgroundColor(Color.WHITE);
+            mGravityTV.setBackgroundColor(Color.WHITE);
+            mOrientationTV.setBackgroundColor(Color.RED);
+
         });
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -161,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE), SensorManager.SENSOR_DELAY_NORMAL);
         sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
         sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);
+        sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
 
@@ -240,6 +268,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
                 break;
 
+            case Sensor.TYPE_ORIENTATION:
+                Log.d("Test", "X:" + event.values[0] + ", Y:" + event.values[1] + ", Z:" + event.values[2]);
+                SensorData orientation = new SensorData();
+                long orientationTime = System.currentTimeMillis();
+                orientation.time = orientationTime - mOrientationTime;
+                mOrientationTime = orientationTime;
+
+                orientation.values[0] = event.values[0];
+                orientation.values[1] = event.values[1];
+                orientation.values[2] = event.values[2];
+                orientation.type = Sensor.TYPE_ORIENTATION;
+                mOrientationList.add(0, orientation);
+                if (mOrientationList.size() > 30) {
+                    mOrientationList.remove(30);
+                }
+                break;
             default:
                 break;
         }
